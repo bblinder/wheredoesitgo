@@ -72,5 +72,3 @@ def process_request():
         </ul>
         <a href="/">Back to search</a>
         '''.format(''.join(['<li><a href="{}">{}</a></li>'.format(url, url) for url, status_code in history]))
-
-app.run(debug=True)
