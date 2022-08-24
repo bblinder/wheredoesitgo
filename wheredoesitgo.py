@@ -8,6 +8,12 @@ app = Flask(__name__)
 ############
 # This method is if you want to make a request via a browser form.
 
+
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+logger.info('Started')
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     return '''
@@ -21,14 +27,19 @@ def index():
 def redirect_url():
     url = request.form['url']
     if not url.startswith('http'):
-        url = 'http://' + url
-    r = requests.get(url, allow_redirects=True)
+        formatted_url = 'http://' + url
+    r = requests.get(formatted_url, allow_redirects=True)
+    with open('history.log', 'a') as f:
+        f.write(f"Initial URL: {url} ; Final URL: {r.url} '\n'")
 
     # Link to url and to index
     return '''
     <a href="{}">{}</a><br><br>
     <a href="/">Back to search</a>
     '''.format(r.url, r.url)
+
+
+
 
 ###########
 
