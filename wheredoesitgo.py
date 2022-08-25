@@ -3,6 +3,7 @@
 import requests
 from flask import Flask, request
 
+
 app = Flask(__name__)
 
 ############
@@ -12,6 +13,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logger.info('Started')
+
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -34,13 +36,34 @@ def redirect_url():
             url = 'http://' + url
         r = requests.get(url, allow_redirects=True)
         with open('history.log', 'a') as f:
-            f.write(f"Initial URL: {url} ; Final URL: {r.url} '\n'")
+            f.write(f"Initial URL: {url} ; Final URL: {r.url} ; Status Code:{r.status_code}; Method: GUI '\n'")
 
-        # Link to url and to index
-        return '''
-        <a href="{}">{}</a><br><br>
-        <a href="/">Back to search</a>
-        '''.format(r.url, r.url)
+        return f'''
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta http-equiv="X-UA-Compatible" content="ie=edge">
+            <title>Redirect</title>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous>
+        </head>
+        <body>
+            <div class="container">
+                <h1>Trace Results</h1>
+                <p>The final URL is: <a href="{r.url}">{r.url}</a></p>
+                <p>Status Code: {r.status_code}</p>
+                <a href="/">Back to home page</a>
+            </div> 
+        </body>
+        </html>
+        '''
+
+        # # Link to url and to index
+        # return '''
+        # <a href="{}">{}</a><br><br>
+        # <a href="/">Back to search</a>
+        # '''.format(r.url, r.url)
 
 ###########
 
@@ -58,6 +81,8 @@ def process_request():
             url = 'http://' + url
 
         r = requests.get(url, allow_redirects=True)
+        with open('history.log', 'a') as f:
+            f.write(f"Initial URL: {url} ; Final URL: {r.url} ; Status Code:{r.status_code}; Method:API '\n'")
        
         history = [(r.url, r.status_code)]
         while r.history:
@@ -72,3 +97,5 @@ def process_request():
         </ul>
         <a href="/">Back to search</a>
         '''.format(''.join(['<li><a href="{}">{}</a></li>'.format(url, url) for url, status_code in history]))
+
+#app.run(port=8080, debug=True)
