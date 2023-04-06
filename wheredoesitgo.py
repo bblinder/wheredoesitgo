@@ -1,8 +1,8 @@
 import logging
 from logging.handlers import RotatingFileHandler
-
 import requests
 from flask import Flask, abort, render_template, request
+from urllib.parse import urlparse, urlunparse
 
 app = Flask(__name__)
 
@@ -19,6 +19,12 @@ logger.addHandler(log_handler)
 logger.info("Application started")
 
 
+def strip_query_string(url):
+    parsed_url = urlparse(url)
+    stripped_url = urlunparse(parsed_url._replace(query=''))
+    return stripped_url
+
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
@@ -33,7 +39,10 @@ def index():
         try:
             r = requests.get(url, allow_redirects=True, timeout=5)
             redirect_history = [(resp.url, resp.status_code) for resp in r.history]
-            redirect_history.append((r.url, r.status_code))
+
+            # Strip the query string from the final URL
+            final_url = strip_query_string(r.url)
+            redirect_history.append((final_url, r.status_code))
 
             for i, (redirect_url, status_code) in enumerate(redirect_history):
                 logger.info(
@@ -65,3 +74,4 @@ def internal_server_error(e):
 
 if __name__ == "__main__":
     app.run(port=8080, debug=True)
+
