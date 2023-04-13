@@ -29,6 +29,7 @@ def strip_query_string(url):
 def index():
     if request.method == "POST":
         url = request.form["url"]
+        strip_query_string_checkbox = request.form.get("strip_query_string") == "true"
 
         if not url:
             return render_template("index.html", error="Please enter a URL")
@@ -40,8 +41,8 @@ def index():
             r = requests.get(url, allow_redirects=True, timeout=5)
             redirect_history = [(resp.url, resp.status_code) for resp in r.history]
 
-            # Strip the query string from the final URL
-            final_url = strip_query_string(r.url)
+            # Strip the query string from the final URL if the checkbox is checked
+            final_url = strip_query_string(r.url) if strip_query_string_checkbox else r.url
             redirect_history.append((final_url, r.status_code))
 
             for i, (redirect_url, status_code) in enumerate(redirect_history):
@@ -58,6 +59,7 @@ def index():
             return render_template("index.html", error=f"Error processing URL: {e}")
 
     return render_template("index.html", error=None)
+
 
 
 @app.errorhandler(404)

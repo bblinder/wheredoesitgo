@@ -14,6 +14,11 @@
         {% endif %}
         <form action="/" method="POST">
             <input type="text" name="url" placeholder="URL">
+            <br>
+            <input type="checkbox" name="strip_query_string" id="strip_query_string" value="true">
+            <label for="strip_query_string">Strip query strings</label>
+            <br>
+            <br>
             <input type="submit" value="Submit">
         </form>
     </div>
