@@ -5,17 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WhereDoesItGo - Results</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script>
+        function toggleQueryStrings() {
+            const stripQueryString = document.getElementById("strip_query_string_checkbox").checked;
+            const urlElements = document.getElementsByClassName("url");
+
+            for (const urlElement of urlElements) {
+                const originalUrl = urlElement.getAttribute("data-original-url");
+                urlElement.textContent = stripQueryString ? stripQueryStringFromUrl(originalUrl) : originalUrl;
+            }
+        }
+
+        function stripQueryStringFromUrl(url) {
+            const parsedUrl = new URL(url);
+            parsedUrl.search = "";
+            return parsedUrl.toString();
+        }
+    </script>
 </head>
 <body>
     <div class="container">
         <h1>Redirect History</h1>
+        <label for="strip_query_string_checkbox">Strip query strings</label>
+        <input type="checkbox" id="strip_query_string_checkbox" onchange="toggleQueryStrings()">
         <ul class="redirect-list">
             {% for url, status_code in history[:-1] %}
-                <li class="redirect-item"><a href="{{ url }}">{{ url }}</a> ({{ status_code }})</li>
+                <li class="redirect-item"><a href="{{ url }}" class="url" data-original-url="{{ url }}">{{ url }}</a> ({{ status_code }})</li>
             {% endfor %}
         </ul>
         <h2>Final URL</h2>
-        <p class="final-url"><a href="{{ history[-1][0] }}">{{ history[-1][0] }}</a> ({{ history[-1][1] }})</p>
+        <p class="final-url"><a href="{{ history[-1][0] }}" class="url" data-original-url="{{ history[-1][0] }}">{{ history[-1][0] }}</a> ({{ history[-1][1] }})</p>
         <a href="/">Back to home page</a>
     </div>
 </body>
